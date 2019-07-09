@@ -58,14 +58,57 @@ namespace MMIOC.Main
             }
         }
 
+
+     
+
         public void GenerateMutants()
         {
-            _code = "some code";
+
+            //if extracting ------------------------------
+            List<string> _splitByIf;
+            _splitByIf = _code.SplitAndKeep( "if" ).ToList();
+
+
+            //_code.GetStringBetween("if", "{");
+            //if extracting ------------------------------
+
+            _code = "soem text";
+
+
             writeToFIle();
         }
 
 
 
 
+    }
+
+
+    public static class ExtendedString
+    {
+        public static string GetStringBetween(this string token, string first, string second)
+        {
+            if (!token.Contains(first)) return "";
+
+            var afterFirst = token.Split(new[] { first }, StringSplitOptions.None)[1];
+
+            if (!afterFirst.Contains(second)) return "";
+
+            var result = afterFirst.Split(new[] { second }, StringSplitOptions.None)[0];
+
+            return result;
+        }
+
+
+        public static IEnumerable<string> SplitAndKeep(this string s, string seperator)
+        {
+            string[] obj = s.Split(new string[] { seperator }, StringSplitOptions.None);
+
+            for (int i = 0; i < obj.Length; i++)
+            {
+                string result = i == 0 ? obj[i] : seperator + obj[i] ;
+                yield return result;
+            }
+        }
     }
 }
