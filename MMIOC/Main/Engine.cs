@@ -68,11 +68,41 @@ namespace MMIOC.Main
             List<string> _splitByIf;
             _splitByIf = _code.SplitAndKeep( "if" ).ToList();
 
+            int F_iterator = 0;
+            List<string> _tempIf;
+            for (int i=0;i< _splitByIf.Count; i++)
+            {
+                string ifStatmentWithCodeBehinde = _splitByIf[i];
+                if (ifStatmentWithCodeBehinde.StartsWith("if"))
+                {
+                    F_iterator++;
+                    _tempIf = ifStatmentWithCodeBehinde.SplitAndKeep("{").ToList();
+
+                    string toMutate = _tempIf[0];
+                    _tempIf[0] = "if(f" + F_iterator + "(int p" + F_iterator + "))";
+                    //wywalic komentarz na koncu z postaci if(....) //sdsadsadasd. doprowadzić do if(....) -> split // /*
+                    //Z postaci if(....)  doprowadzić do if(Funkcja(param ster))
+                    //Z postaci if(....)  doprowadzić do Funkcja(.....)
+                    //czyli tak tworzymy nowa zmienna i kopiujemy wartość z indeksu 0 [0]
+                    //indeks zero zmieniamy na if(funkcja(parametr))
+                    //tworzymy funkcje, ktura bedziemy doklejac na koncu z swichami
+                    //modyfikujemy argsy dodajac parametr (narazie reczne wklejanie) 
+                    _splitByIf[i] = _tempIf[0] + _tempIf[1];
+                }
+
+            }
+
+            foreach (string codeAfterSplit in _splitByIf)
+            {
+                _code += codeAfterSplit;
+            }
 
             //_code.GetStringBetween("if", "{");
             //if extracting ------------------------------
 
-            _code = "soem text";
+
+
+
 
 
             writeToFIle();
