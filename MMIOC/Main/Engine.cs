@@ -17,6 +17,8 @@ namespace MMIOC.Main
         private string _None="NONE";
         private string _param="param"; //paramether that controlls wich mutation should be run.
         private string _mutant_block;
+        private string _mutant_block_predef;
+        int F_iterator = 0;
 
         public Engine()
         {
@@ -75,79 +77,35 @@ namespace MMIOC.Main
         public void GenerateMutants()
         {
             _mutant_block = "" + Environment.NewLine + Environment.NewLine+"//MUTANTS BLOCK OF CODE ====================================" + Environment.NewLine; //Beginig coment for mutants block of code
-            //if extracting ------------------------------
-            List<string> _splitByIf;
+            _mutant_block_predef = "" + Environment.NewLine;
             _code = _code.StripComments();
-            _splitByIf = _code.SplitAndKeep( "if" ).ToList();
-            int F_iterator = 0;
-            List<string> _tempIf;
 
-            for (int i=0;i< _splitByIf.Count; i++)
+            List<string> splitByBlockOfCode;
+
+            splitByBlockOfCode = _code.SplitforBlocks('{','}').ToList();
+            _code = "";
+            foreach (string block in splitByBlockOfCode)
             {
-                string ifStatmentWithCodeBehinde = _splitByIf[i];
-                if (ifStatmentWithCodeBehinde.StartsWith("if"))
-                {
-                    F_iterator++;
-                    _tempIf = ifStatmentWithCodeBehinde.SplitAndKeep("{").ToList();
-
-                    string toMutate = _tempIf[0];
-                    _tempIf[0] = "if(f" + F_iterator + "(atoi (argv[" + F_iterator + "])))"; //Generaring new mutated if.                 
-                    _splitByIf[i] = _tempIf[0] + _tempIf[1]; // repleace old if with mutant equivalent.
-
-                    string mutant_function_header = Environment.NewLine + Environment.NewLine+"public bool f" + F_iterator + "(int "+ _param + "){" + Environment.NewLine; //generating header of mutation function
-
-                    string mutant_function_body = "";
-
-                    string mutant_function_Footer = Environment.NewLine + "}"; //generating footer
-
-                    string mutant_function = "";
-
-                    #region Conditionals operator
-                    //Conditionals operator ----------------------------------
-                    string condition = coditionalOperatorDetector(toMutate);
-                    toMutate = toMutate.Trim();
-                    toMutate = toMutate.Replace("if", "");
-                    if (condition != _None) //Comon condytions 
-                    {
-                        mutant_function_body += "if(" + _param + "==1){return " + toMutate.Replace(condition,"<") + "}" + Environment.NewLine;
-                        mutant_function_body += "else if(" + _param + "==2){return " + toMutate.Replace(condition,"<=") + "}" + Environment.NewLine;
-                        mutant_function_body += "else if(" + _param + "==3){return " + toMutate.Replace(condition,">") + "}" + Environment.NewLine;
-                        mutant_function_body += "else if(" + _param + "==4){return " + toMutate.Replace(condition,">=") + "}" + Environment.NewLine;
-                        mutant_function_body += "else if(" + _param + "==5){return " + toMutate.Replace(condition,"!=") + "}" + Environment.NewLine;
-                        mutant_function_body += "else if(" + _param + "==6){return " + toMutate.Replace(condition,"==") + "}" + Environment.NewLine;
-                        mutant_function_body += "else {return " + toMutate + "}" + Environment.NewLine;
-                    }
-                    else if (toMutate.Contains("!")) //not equals
-                    {
-                        mutant_function_body += "if(" + _param + "==1){return " + toMutate.Replace(condition, "") + "}" + Environment.NewLine; //that will return equal
-                        mutant_function_body += "else {return " + toMutate + "}" + Environment.NewLine;
-                    }
-                    else //equal
-                    {
-                        mutant_function_body += "if(" + _param + "==1){return !" + toMutate + "}" + Environment.NewLine; //that will return not equal
-                        mutant_function_body += "else {return " + toMutate + "}" + Environment.NewLine;
-                    }
-                    //Conditionals operator ----------------------------------
-                    #endregion
-
-                    mutant_function = mutant_function_header + mutant_function_body + mutant_function_Footer;
-                    _mutant_block += mutant_function;
-                }
-
+                Dictionary<CppTypes, List<string>> BlockParams = block.GetAllParamsInBlock();
+               _code += IfExtracting(block, BlockParams); 
             }
 
-            _code = ""; //lear code old value
-
-            foreach (string codeAfterSplit in _splitByIf)
+            //Main modyfication --------------------------------------------------------------------
+            string pattern = @"int\s*main[(][)]\s*\n*\t*\w*\n*\t*\s*[{]";
+            Match m = Regex.Match(_code, pattern, RegexOptions.IgnoreCase);
+            if (m.Success)
             {
-                _code += codeAfterSplit;
-            }
+                Regex regex = new Regex(@"int\s*main[(][)]\s*\n*\t*\w*\n*\t*\s*[{]");
+                string newMain = regex.Replace(_code, Environment.NewLine + _mutant_block_predef + Environment.NewLine + "" +
+                                                      " char **argv;" + Environment.NewLine + Environment.NewLine +
+                                                      "int main(int argc, char* argv[]){" + Environment.NewLine +
+                                                      "   ");
 
+                _code = newMain;
+            }
+            //Main modyfication --------------------------------------------------------------------
 
             _mutant_block += Environment.NewLine + "//MUTANTS BLOCK OF CODE ===================================="; //Ending coment for mutants block of code
-            //_code.GetStringBetween("if", "{");
-            //if extracting ------------------------------
-
 
 
 
@@ -165,6 +123,135 @@ namespace MMIOC.Main
 
             _code += _mutant_block; //adding mutants to mutated code
             writeToFIle();
+        }
+
+
+        private string IfExtracting(string code, Dictionary<CppTypes, List<string>> blockParams)
+        {
+            //if extracting ------------------------------
+            Tuple<string, string> paramsToPassed = ConstructParamsString(blockParams);
+
+
+            List<string> _splitByIf;
+            _splitByIf = code.SplitAndKeep("if(").ToList();
+           
+            List<string> _tempIf;
+
+            for (int i = 0; i < _splitByIf.Count; i++)
+            {
+                string ifStatmentWithCodeBehinde = _splitByIf[i];
+                if (ifStatmentWithCodeBehinde.StartsWith("if("))
+                {
+                    F_iterator++;
+                    _tempIf = ifStatmentWithCodeBehinde.SplitAndKeep("{").ToList();
+
+                    string toMutate = _tempIf[0];
+                    _tempIf[0] = "if(f" + F_iterator + "(atoi (argv[" + F_iterator + "])" + paramsToPassed.Item1 + " ))"; //Generaring new mutated if.                 
+                    _splitByIf[i] = _tempIf[0] + _tempIf[1]; // repleace old if with mutant equivalent.
+
+
+                    string mutant_function_header_predef = " bool f" + F_iterator + "(int " + _param + "" + paramsToPassed.Item2 + ")";
+                    string mutant_function_header = Environment.NewLine + Environment.NewLine + mutant_function_header_predef + "{" + Environment.NewLine; //generating header of mutation function
+
+                    string mutant_function_body = "";
+
+                    string mutant_function_Footer = Environment.NewLine + "}"; //generating footer
+
+                    string mutant_function = "";
+
+                    #region Conditionals operator
+                    //Conditionals operator ----------------------------------
+                    string condition = coditionalOperatorDetector(toMutate);
+                    toMutate = toMutate.Trim();
+                    toMutate = toMutate.Replace("if", "");
+                    toMutate = toMutate + ";";
+                    if (condition != _None) //Comon condytions 
+                    {
+                        mutant_function_body += "if(" + _param + "==1){return " + toMutate.Replace(condition, "<") + "}" + Environment.NewLine;
+                        mutant_function_body += "else if(" + _param + "==2){return " + toMutate.Replace(condition, "<=") + "}" + Environment.NewLine;
+                        mutant_function_body += "else if(" + _param + "==3){return " + toMutate.Replace(condition, ">") + "}" + Environment.NewLine;
+                        mutant_function_body += "else if(" + _param + "==4){return " + toMutate.Replace(condition, ">=") + "}" + Environment.NewLine;
+                        mutant_function_body += "else if(" + _param + "==5){return " + toMutate.Replace(condition, "!=") + "}" + Environment.NewLine;
+                        mutant_function_body += "else if(" + _param + "==6){return " + toMutate.Replace(condition, "==") + "}" + Environment.NewLine;
+                        mutant_function_body += "else {return " + toMutate + "}" + Environment.NewLine;
+                    }
+                    else if (toMutate.Contains("!")) //not equals
+                    {
+                        mutant_function_body += "if(" + _param + "==1){return " + toMutate.Replace(condition, "") + "}" + Environment.NewLine; //that will return equal
+                        mutant_function_body += "else {return " + toMutate + "}" + Environment.NewLine;
+                    }
+                    else //equal
+                    {
+                        mutant_function_body += "if(" + _param + "==1){return !" + toMutate + "}" + Environment.NewLine; //that will return not equal
+                        mutant_function_body += "else {return " + toMutate + "}" + Environment.NewLine;
+                    }
+                    //Conditionals operator ----------------------------------
+                    #endregion
+
+                    mutant_function = mutant_function_header + mutant_function_body + mutant_function_Footer;
+                    _mutant_block += mutant_function;
+                    _mutant_block_predef += mutant_function_header_predef + ";" + Environment.NewLine;
+                }
+
+            }
+
+            code = ""; //lear code old value
+
+            foreach (string codeAfterSplit in _splitByIf)
+            {
+                //if (codeAfterSplit.Contains("int main()"))
+                //{
+
+                //    string newMain = codeAfterSplit.Replace("int main()",
+                //        Environment.NewLine + _mutant_block_predef + Environment.NewLine + "int main(int argc, char* argv[])"
+                //        );
+
+                //    code += newMain;
+                //}
+                //else
+                //{
+                    code += codeAfterSplit;
+              //  }
+
+            }
+
+
+          
+            //_code.GetStringBetween("if", "{");
+            //if extracting ------------------------------
+
+            return code;
+        }
+
+        private Tuple<string,string> ConstructParamsString(Dictionary<CppTypes, List<string>> blockParams)
+        {
+         
+              string toreturn = ",";
+            string toreturn_type = ",";
+            foreach (string intparam in blockParams[CppTypes.cpp_int])
+            {
+                toreturn += intparam + ",";
+                toreturn_type += "int "+intparam + ",";
+
+            }
+
+            foreach (string intparam in blockParams[CppTypes.cpp_long])
+            {
+                toreturn += intparam + ",";
+                toreturn_type += "long " + intparam + ",";
+            }
+
+            foreach (string intparam in blockParams[CppTypes.cpp_double])
+            {
+                toreturn += intparam + ",";
+                toreturn_type += "double " + intparam + ",";
+            }
+
+            toreturn = toreturn.TrimEnd(',');
+            toreturn_type = toreturn_type.TrimEnd(',');
+
+            Tuple<string, string> tureturnTupe = new Tuple<string, string>(toreturn, toreturn_type);
+            return tureturnTupe;
         }
 
 
@@ -217,5 +304,104 @@ namespace MMIOC.Main
             var re = @"(@(?:""[^""]*"")+|""(?:[^""\n\\]+|\\.)*""|'(?:[^'\n\\]+|\\.)*')|//.*|/\*(?s:.*?)\*/";
             return Regex.Replace(code, re, "$1");
         }
+
+
+        public static IEnumerable<string> SplitforBlocks(this string text, char token_begin, char token_end)
+        {
+            List<string> toreturn = new List<string>();
+            Stack<char> begins = new Stack<char>();
+          
+            string tempblock = "";
+            bool tockenDetected = false;
+            for (int i = 0; i < text.Length; i++)
+            {
+                char character = text[i];
+                tempblock += character;
+
+                if (character == token_begin && !tockenDetected)
+                {
+                    tockenDetected = true;
+                    begins.Push(character);
+                }
+                else if (tockenDetected && character == token_begin)
+                {
+                    begins.Push(character);
+                }
+
+                if (tockenDetected && character == token_end)
+                {
+                    begins.Pop();
+                    if (begins.Count <= 0)
+                    {
+                        tockenDetected = false;
+                        toreturn.Add(tempblock);
+                        tempblock = "";
+                    }
+                }
+            }
+
+
+            return toreturn;
+        }
+
+
+        public static Dictionary<CppTypes,List<string>> GetAllParamsInBlock(this string text)
+        {
+            Dictionary<CppTypes, List<string>> paramsToReturn = new Dictionary<CppTypes, List<string>>();
+
+            paramsToReturn.Add(CppTypes.cpp_int, ParamFromBlockExtractor(text,"int"));
+            paramsToReturn.Add(CppTypes.cpp_long, ParamFromBlockExtractor(text,"long"));
+            paramsToReturn.Add(CppTypes.cpp_double, ParamFromBlockExtractor(text,"double"));
+            return paramsToReturn;
+        }
+
+
+        private static List<string> ParamFromBlockExtractor(string text,string token)
+        {
+            List < string > toreturn  = new List<string>();
+            string tempblock = "";
+            bool tockenDetected = false;
+            for (int i = 0; i < text.Length; i++)
+            {
+                char character = text[i];
+                tempblock += character;
+
+                if (
+                    character == '(' ||
+                    character == ')' ||
+                    character == '{' ||
+                    character == '}' ||
+                    character == '<' ||
+                    character == '>' 
+                    )
+                {
+                    tempblock = "";
+                    tockenDetected = false;
+                }
+
+                if (tempblock.Contains(token))
+                {
+                    tockenDetected = true;
+                    tempblock = "";
+                }
+
+                if (tockenDetected && ( character == ';' || character == '=') )
+                {
+                    tempblock = tempblock.TrimEnd(';');
+                    tempblock = tempblock.TrimEnd('=');
+                    toreturn.Add(tempblock);
+                    tempblock = "";
+                    tockenDetected = false;
+                }
+            }
+            return toreturn;
+        }
+
+
+    }
+
+    public enum CppTypes
+    {
+        cpp_int, cpp_long, cpp_double, cpp_string, cpp_char
     }
 }
