@@ -79,7 +79,7 @@ namespace MMIOC.Main
                     _tempIf = ifStatmentWithCodeBehinde.SplitAndKeep("{").ToList();
 
                     string toMutate = _tempIf[0];
-                    _tempIf[0] = "if(f" + F_iterator + "(int p" + F_iterator + "))";
+                    _tempIf[0] = "if(f" + F_iterator + "(atoi (argv[" + F_iterator + "])))"; //dorobic zmeinna sterujaca jesli, która odrazu mutuje i robi wiele kompilacji lub inaczej
                     //wywalic komentarz na koncu z postaci if(....) //sdsadsadasd. doprowadzić do if(....) -> split // /*
                     //Z postaci if(....)  doprowadzić do if(Funkcja(param ster))
                     //Z postaci if(....)  doprowadzić do Funkcja(.....)
