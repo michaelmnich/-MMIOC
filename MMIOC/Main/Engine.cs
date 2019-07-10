@@ -249,6 +249,12 @@ namespace MMIOC.Main
                 toreturn_type += "double " + intparam + ",";
             }
 
+            foreach (string intparam in blockParams[CppTypes.cpp_bool])
+            {
+                toreturn += intparam + ",";
+                toreturn_type += "bool " + intparam + ",";
+            }
+
             toreturn = toreturn.TrimEnd(',');
             toreturn_type = toreturn_type.TrimEnd(',');
 
@@ -354,6 +360,7 @@ namespace MMIOC.Main
             paramsToReturn.Add(CppTypes.cpp_int, ParamFromBlockExtractor(text,"int"));
             paramsToReturn.Add(CppTypes.cpp_long, ParamFromBlockExtractor(text,"long"));
             paramsToReturn.Add(CppTypes.cpp_double, ParamFromBlockExtractor(text,"double"));
+            paramsToReturn.Add(CppTypes.cpp_bool, ParamFromBlockExtractor(text,"bool"));
             return paramsToReturn;
         }
 
@@ -386,6 +393,11 @@ namespace MMIOC.Main
                     tockenDetected = true;
                     tempblock = "";
                 }
+                if (tockenDetected && (character == '"'))
+                {
+                    tempblock = "";
+                    tockenDetected = false;
+                }
 
                 if (tockenDetected && ( character == ';' || character == '=') )
                 {
@@ -404,6 +416,6 @@ namespace MMIOC.Main
 
     public enum CppTypes
     {
-        cpp_int, cpp_long, cpp_double, cpp_string, cpp_char
+        cpp_int, cpp_long, cpp_double, cpp_string, cpp_char, cpp_bool
     }
 }
