@@ -16,8 +16,8 @@ namespace MMIOC.Main
         private string _file;
         private string _None="NONE";
         private string _param="param"; //paramether that controlls wich mutation should be run.
-        private string _mutant_block;
-        private string _mutant_block_predef;
+        private string _mutant_block; //This strinn is appended each time some new mutant place is detected and mutants blok is created
+        private string _mutant_block_predef;// -||-
         int F_iterator = 0;
 
         public Engine()
@@ -37,7 +37,6 @@ namespace MMIOC.Main
               
                 // Open the file to read from.
                 string readText = File.ReadAllText(pp);
-             
 
                 Console.WriteLine("--- Oryginal code -----------------------------------");
                 Console.WriteLine("");
@@ -125,13 +124,16 @@ namespace MMIOC.Main
             writeToFIle();
         }
 
-
+        /// <summary>
+        ///  Function generates code with mutaded ifs. 
+        /// </summary>
+        /// <param name="code"></param>
+        /// <param name="blockParams"></param>
+        /// <returns></returns>
         private string IfExtracting(string code, Dictionary<CppTypes, List<string>> blockParams)
         {
             //if extracting ------------------------------
             Tuple<string, string> paramsToPassed = ConstructParamsString(blockParams);
-
-
             List<string> _splitByIf;
             _splitByIf = code.SplitAndKeep("if(").ToList();
            
@@ -226,7 +228,7 @@ namespace MMIOC.Main
         private Tuple<string,string> ConstructParamsString(Dictionary<CppTypes, List<string>> blockParams)
         {
          
-              string toreturn = ",";
+            string toreturn = ",";
             string toreturn_type = ",";
             foreach (string intparam in blockParams[CppTypes.cpp_int])
             {
