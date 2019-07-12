@@ -25,7 +25,8 @@ namespace MMIOC
             mutator.GenerateMutants();
 
 
-
+            mutator.LoadCodeFromFile(path, "sample01.cpp");
+            mutator.GenerateMutants_perCompilation();
 
 
             Console.WriteLine("enter comand.. ");

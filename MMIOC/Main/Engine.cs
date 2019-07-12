@@ -19,6 +19,9 @@ namespace MMIOC.Main
         private string _mutant_block; //This strinn is appended each time some new mutant place is detected and mutants blok is created
         private string _mutant_block_predef;// -||-
         int F_iterator = 0;
+        int Mutat_iterator = 0;
+        int Mutat_iterator_Compilation = 0;
+
 
         public Engine()
         {
@@ -71,17 +74,19 @@ namespace MMIOC.Main
         }
 
 
-     
+        
 
         public void GenerateMutants()
         {
             _mutant_block = "" + Environment.NewLine + Environment.NewLine+"//MUTANTS BLOCK OF CODE ====================================" + Environment.NewLine; //Beginig coment for mutants block of code
             _mutant_block_predef = "" + Environment.NewLine;
-            _code = _code.StripComments();
+            _code = _code.StripComments(); //removing coments
+
+            Regex regex_argV = new Regex(@"argv\s*\[");
+            _code = regex_argV.Replace(_code, "argv[1+"); //repleace argv[something] to argv[1+something]
 
             List<string> splitByBlockOfCode;
-
-            splitByBlockOfCode = _code.SplitforBlocks('{','}').ToList();
+            splitByBlockOfCode = _code.SplitforBlocks('{','}').ToList(); //spliting by block
             _code = "";
             foreach (string block in splitByBlockOfCode)
             {
@@ -90,11 +95,11 @@ namespace MMIOC.Main
             }
 
             //Main modyfication --------------------------------------------------------------------
-            string pattern = @"int\s*main[(][)]\s*\n*\t*\w*\n*\t*\s*[{]";
+            string pattern = @"int\s*main[(]\s*\w*\s*\n*\t*\w*\[*\]*\s*\,*\s*\w*\x2A*\s*\w*\[*\s*\w*\+*\]*[)]\s*\n*\t*\w*\n*\t*\s*[{]";
             Match m = Regex.Match(_code, pattern, RegexOptions.IgnoreCase);
             if (m.Success)
             {
-                Regex regex = new Regex(@"int\s*main[(][)]\s*\n*\t*\w*\n*\t*\s*[{]");
+                Regex regex = new Regex(@"int\s*main[(]\s*\w*\s*\n*\t*\w*\[*\]*\s*\,*\s*\w*\x2A*\s*\w*\[*\s*\w*\+*\]*[)]\s*\n*\t*\w*\n*\t*\s*[{]");
                 string newMain = regex.Replace(_code, Environment.NewLine + _mutant_block_predef + Environment.NewLine + "" +
                                                       " char **argv;" + Environment.NewLine + Environment.NewLine +
                                                       "int main(int argc, char* argv[]){" + Environment.NewLine +
@@ -148,7 +153,7 @@ namespace MMIOC.Main
                     _tempIf = ifStatmentWithCodeBehinde.SplitAndKeep("{").ToList();
 
                     string toMutate = _tempIf[0];
-                    _tempIf[0] = "if(f" + F_iterator + "(atoi (argv[" + F_iterator + "])" + paramsToPassed.Item1 + " ))"; //Generaring new mutated if.                 
+                    _tempIf[0] = "if(f" + F_iterator + "(atoi (argv[1])" + paramsToPassed.Item1 + " ))"; //Generaring new mutated if.                 
                     _splitByIf[i] = _tempIf[0] + _tempIf[1]; // repleace old if with mutant equivalent.
 
 
@@ -169,22 +174,30 @@ namespace MMIOC.Main
                     toMutate = toMutate + ";";
                     if (condition != _None) //Comon condytions 
                     {
-                        mutant_function_body += "if(" + _param + "==1){return " + toMutate.Replace(condition, "<") + "}" + Environment.NewLine;
-                        mutant_function_body += "else if(" + _param + "==2){return " + toMutate.Replace(condition, "<=") + "}" + Environment.NewLine;
-                        mutant_function_body += "else if(" + _param + "==3){return " + toMutate.Replace(condition, ">") + "}" + Environment.NewLine;
-                        mutant_function_body += "else if(" + _param + "==4){return " + toMutate.Replace(condition, ">=") + "}" + Environment.NewLine;
-                        mutant_function_body += "else if(" + _param + "==5){return " + toMutate.Replace(condition, "!=") + "}" + Environment.NewLine;
-                        mutant_function_body += "else if(" + _param + "==6){return " + toMutate.Replace(condition, "==") + "}" + Environment.NewLine;
+                        mutant_function_body += "if(" + _param + "=="+ Mutat_iterator + "){return " + toMutate.Replace(condition, "<") + "}" + Environment.NewLine;
+                        Mutat_iterator++;
+                        mutant_function_body += "else if(" + _param + "==" + Mutat_iterator + "){return " + toMutate.Replace(condition, "<=") + "}" + Environment.NewLine;
+                        Mutat_iterator++;
+                        mutant_function_body += "else if(" + _param + "==" + Mutat_iterator + "){return " + toMutate.Replace(condition, ">") + "}" + Environment.NewLine;
+                        Mutat_iterator++;
+                        mutant_function_body += "else if(" + _param + "==" + Mutat_iterator + "){return " + toMutate.Replace(condition, ">=") + "}" + Environment.NewLine;
+                        Mutat_iterator++;
+                        mutant_function_body += "else if(" + _param + "==" + Mutat_iterator + "){return " + toMutate.Replace(condition, "!=") + "}" + Environment.NewLine;
+                        Mutat_iterator++;
+                        mutant_function_body += "else if(" + _param + "==" + Mutat_iterator + "){return " + toMutate.Replace(condition, "==") + "}" + Environment.NewLine;
+                        Mutat_iterator++;
                         mutant_function_body += "else {return " + toMutate + "}" + Environment.NewLine;
                     }
                     else if (toMutate.Contains("!")) //not equals
                     {
-                        mutant_function_body += "if(" + _param + "==1){return " + toMutate.Replace(condition, "") + "}" + Environment.NewLine; //that will return equal
+                        mutant_function_body += "if(" + _param + "==" + Mutat_iterator + "){return " + toMutate.Replace(condition, "") + "}" + Environment.NewLine; //that will return equal
+                        Mutat_iterator++;
                         mutant_function_body += "else {return " + toMutate + "}" + Environment.NewLine;
                     }
                     else //equal
                     {
-                        mutant_function_body += "if(" + _param + "==1){return !" + toMutate + "}" + Environment.NewLine; //that will return not equal
+                        mutant_function_body += "if(" + _param + "==" + Mutat_iterator + "){return !" + toMutate + "}" + Environment.NewLine; //that will return not equal
+                        Mutat_iterator++;
                         mutant_function_body += "else {return " + toMutate + "}" + Environment.NewLine;
                     }
                     //Conditionals operator ----------------------------------
@@ -262,18 +275,113 @@ namespace MMIOC.Main
             return tureturnTupe;
         }
 
+        #region Many Compilations ---------------------------------------------------------------------------
 
         private string coditionalOperatorDetector(string statment)
         {
-            if(statment.Contains("<") ){return "<";}
-            if(statment.Contains("<=")){return "<=";}
-            if(statment.Contains(">") ){return ">";}
-            if(statment.Contains(">=")){return ">=";}
-            if(statment.Contains("==")){return "==";}
-            if(statment.Contains("!=")){return "!=";}
+            if (statment.Contains("<")) { return "<"; }
+            if (statment.Contains("<=")) { return "<="; }
+            if (statment.Contains(">")) { return ">"; }
+            if (statment.Contains(">=")) { return ">="; }
+            if (statment.Contains("==")) { return "=="; }
+            if (statment.Contains("!=")) { return "!="; }
             return _None;
         }
 
+        public void GenerateMutants_perCompilation()
+        {
+            Mutat_iterator_Compilation = 0;
+            string code = _code.StripComments(); //removing coments
+
+
+            //if extracting ------------------------------
+
+            List<string> _splitByIf;
+            _splitByIf = code.SplitAndKeep("if(").ToList();
+
+            List<string> _tempIf;
+
+            //for (int j = 0; j < _splitByIf.Count; j++)
+            //{
+
+            string newCode = "";
+            for (int i = 0; i < _splitByIf.Count; i++)
+            {
+                //-----------------------------------------------------------------------
+                string ifStatmentWithCodeBehinde = _splitByIf[i];
+                if (ifStatmentWithCodeBehinde.StartsWith("if("))
+                {
+
+                    _tempIf = ifStatmentWithCodeBehinde.SplitAndKeep("{").ToList();
+
+                    string toMutate = _tempIf[0];
+                    string condition = coditionalOperatorDetector(toMutate);
+                    if (condition != _None) //Comon condytions 
+                    {
+                        helper02(_splitByIf, i, helper01(ifStatmentWithCodeBehinde, "<"));
+                        helper02(_splitByIf, i, helper01(ifStatmentWithCodeBehinde, ">"));
+                        helper02(_splitByIf, i, helper01(ifStatmentWithCodeBehinde, "<="));
+                        helper02(_splitByIf, i, helper01(ifStatmentWithCodeBehinde, ">="));
+                        helper02(_splitByIf, i, helper01(ifStatmentWithCodeBehinde, "=="));
+                        helper02(_splitByIf, i, helper01(ifStatmentWithCodeBehinde, "!="));
+                    }
+                    else if (toMutate.Contains("!")) //not equals
+                    {
+                        helper02(_splitByIf, i, helper01(ifStatmentWithCodeBehinde, ""));
+                    }
+                    else //equal
+                    {
+                        helper02(_splitByIf, i, helper01(ifStatmentWithCodeBehinde, "!"));
+                    }
+
+                    // helper02(_splitByIf,i, helper01(ifStatmentWithCodeBehinde
+                }
+                //-----------------------------------------------------------------------
+            }
+            // }
+        }
+
+        private string helper01(string ifstatment, string conditionRepleacment)
+        {
+            List<string> _tempIf;
+            _tempIf = ifstatment.SplitAndKeep("{").ToList();
+
+            string toMutate = _tempIf[0];
+            string condition = coditionalOperatorDetector(toMutate);
+            _tempIf[0] = toMutate.Replace(condition, conditionRepleacment);
+
+
+            return "/* -- MUTANT -- */" + _tempIf[0] + _tempIf[1];
+        }
+
+        private void helper02(List<string> statmentList, int index, string newline)
+        {
+            List<string> newStatmensCode = new List<string>(statmentList);
+            newStatmensCode[index] = newline;
+            string newCode = "";
+            foreach (string s in newStatmensCode)
+            {
+                newCode += s;
+            }
+
+            string pp01 = Path.Combine(_path, "mutants/ManyComp/comp" + Mutat_iterator_Compilation);
+            string pp = Path.Combine(pp01, _file);
+            // This text is added only once to the file.
+            if (File.Exists(_path))
+            {
+                // Create a file to write to.
+                File.WriteAllText(pp, newCode, Encoding.UTF8);
+            }
+            else
+            {
+                DirectoryInfo di = Directory.CreateDirectory(pp01);
+                // Create a file to write to.
+                File.WriteAllText(pp, newCode, Encoding.UTF8);
+            }
+            Mutat_iterator_Compilation++;
+        }
+
+        #endregion
 
 
     }
