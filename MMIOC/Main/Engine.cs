@@ -155,9 +155,13 @@ namespace MMIOC.Main
                     _tempIf = ifStatmentWithCodeBehinde.SplitAndKeep("{").ToList();
 
                     string toMutate = _tempIf[0];
-                    _tempIf[0] = "if(f" + F_iterator + "(atoi (argv[1])" + paramsToPassed.Item1 + " ))"; //Generaring new mutated if.                 
-                    _splitByIf[i] = _tempIf[0] + _tempIf[1]; // repleace old if with mutant equivalent.
-
+                    _tempIf[0] = "if(f" + F_iterator + "(atoi (argv[1])" + paramsToPassed.Item1 + " ))"; //Generaring new mutated if.
+                    string newline ="";                 
+                    foreach (string s in _tempIf)
+                    {
+                        newline += s;// repleace old if with mutant equivalent.
+                    }
+                    _splitByIf[i] = newline;
 
                     string mutant_function_header_predef = " bool f" + F_iterator + "(int " + _param + "" + paramsToPassed.Item2 + ")";
                     string mutant_function_header = Environment.NewLine + Environment.NewLine + mutant_function_header_predef + "{" + Environment.NewLine; //generating header of mutation function
