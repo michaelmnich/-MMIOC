@@ -1,0 +1,1 @@
+g++ -o %1sample01 %1sample01.cpp

@@ -21,11 +21,13 @@ namespace MMIOC.Main
         int F_iterator = 0;
         int Mutat_iterator = 0;
         int Mutat_iterator_Compilation = 0;
+        private Directories _dirs;
 
 
-        public Engine()
+
+        public Engine(Directories dirs)
         {
-            
+            _dirs = dirs; 
         }
 
 
@@ -56,7 +58,7 @@ namespace MMIOC.Main
 
         private void writeToFIle()
         {
-            string pp01 = Path.Combine(_path, "mutants");
+            string pp01 = Path.Combine(Environment.CurrentDirectory, _dirs.ManyMutantsInOne_Dir);
             string pp = Path.Combine(pp01, _file);
             // This text is added only once to the file.
             if (File.Exists(_path))
@@ -290,6 +292,7 @@ namespace MMIOC.Main
 
         public void GenerateMutants_perCompilation()
         {
+            _dirs.OneMutantsInOne_SingleComp_Dir.Clear(); //clering dir list
             Mutat_iterator_Compilation = 0;
             string code = _code.StripComments(); //removing coments
 
@@ -350,21 +353,34 @@ namespace MMIOC.Main
             string condition = coditionalOperatorDetector(toMutate);
             _tempIf[0] = toMutate.Replace(condition, conditionRepleacment);
 
+            string ret = "/* -- MUTANT -- */";
+            foreach (string s in _tempIf)
+            {
+                ret += s;
+            }
 
-            return "/* -- MUTANT -- */" + _tempIf[0] + _tempIf[1];
+            return ret;
         }
 
         private void helper02(List<string> statmentList, int index, string newline)
         {
+            
             List<string> newStatmensCode = new List<string>(statmentList);
             newStatmensCode[index] = newline;
             string newCode = "";
-            foreach (string s in newStatmensCode)
+            foreach (string s in newStatmensCode) //combinig code from statments
             {
                 newCode += s;
             }
 
-            string pp01 = Path.Combine(_path, "mutants/ManyComp/comp" + Mutat_iterator_Compilation);
+            if (newCode.Contains("ffff()if(b!=21)"))
+            {
+                Console.WriteLine("fuck");
+            }
+
+            //Writing to file --------------------------------------------------------------------------
+            string pp01 = Path.Combine(Environment.CurrentDirectory,_dirs.OneMutantsInOne_Dir + Mutat_iterator_Compilation);
+            _dirs.OneMutantsInOne_SingleComp_Dir.Add(_dirs.OneMutantsInOne_Dir + Mutat_iterator_Compilation+"\\");
             string pp = Path.Combine(pp01, _file);
             // This text is added only once to the file.
             if (File.Exists(_path))
@@ -378,6 +394,7 @@ namespace MMIOC.Main
                 // Create a file to write to.
                 File.WriteAllText(pp, newCode, Encoding.UTF8);
             }
+            //Writing to file --------------------------------------------------------------------------
             Mutat_iterator_Compilation++;
         }
 
