@@ -10,7 +10,8 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(ProjectDir)bat\compile.bat&quot; &quot;$(ProjectDir)bin\Debug\netcoreapp3.0\compile.bat&quot; /y" />
+    <Exec Command="xcopy &quot;$(ProjectDir)bat\compile.bat&quot; &quot;$(ProjectDir)bin\Debug\netcoreapp3.0\compile.bat&quot;* /y" />
+    <Exec Command="xcopy &quot;$(ProjectDir)bat\run.bat&quot; &quot;$(ProjectDir)bin\Debug\netcoreapp3.0\run.bat&quot;* /y " />
   </Target>
 
 </Project>

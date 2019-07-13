@@ -11,6 +11,12 @@ namespace MMIOC.Main
     public class Engine
     {
 
+        public double AvrageMutationTime_Agregate = 0;
+        public double AvrageMutationTime_Separatly = 0;
+
+        public double TotalMutationTime_Agregate = 0;
+        public double TotalMutationTime_Separatly = 0;
+
         private string _code;
         private string _path;
         private string _file;
@@ -20,6 +26,7 @@ namespace MMIOC.Main
         private string _mutant_block_predef;// -||-
         int F_iterator = 0;
         int Mutat_iterator = 0;
+        public int MutantIterator { get { return Mutat_iterator; } }
         int Mutat_iterator_Compilation = 0;
         private Directories _dirs;
 
@@ -80,6 +87,7 @@ namespace MMIOC.Main
 
         public void GenerateMutants()
         {
+            DateTime T01 = DateTime.Now;
             _mutant_block = "" + Environment.NewLine + Environment.NewLine+"//MUTANTS BLOCK OF CODE ====================================" + Environment.NewLine; //Beginig coment for mutants block of code
             _mutant_block_predef = "" + Environment.NewLine;
             _code = _code.StripComments(); //removing coments
@@ -115,20 +123,28 @@ namespace MMIOC.Main
 
 
 
+      
+
+            string codeToView = _code;
+            string mutant_blockToView = _mutant_block;
+
+            _code += _mutant_block; //adding mutants to mutated code
+            writeToFIle();
+            DateTime T02 = DateTime.Now;
+           this.AvrageMutationTime_Agregate = ProjectTools.GetTimeDif(T01, T02);
+           this.TotalMutationTime_Agregate = ProjectTools.GetTimeDif(T01, T02);
+
             Console.WriteLine("--- Mutated code ------------------------------------");
             Console.WriteLine("");
-            Console.ForegroundColor = ConsoleColor.Blue;      
-            Console.WriteLine(_code);
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine(codeToView);
             Console.WriteLine("");
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine(_mutant_block);
+            Console.WriteLine(mutant_blockToView);
             Console.ForegroundColor = ConsoleColor.White;
             Console.WriteLine("");
             Console.WriteLine("-----------------------------------------------------");
 
-
-            _code += _mutant_block; //adding mutants to mutated code
-            writeToFIle();
         }
 
         /// <summary>
@@ -296,6 +312,7 @@ namespace MMIOC.Main
 
         public void GenerateMutants_perCompilation()
         {
+            DateTime T01 = DateTime.Now;
             _dirs.OneMutantsInOne_SingleComp_Dir.Clear(); //clering dir list
             Mutat_iterator_Compilation = 0;
             string code = _code.StripComments(); //removing coments
@@ -345,6 +362,11 @@ namespace MMIOC.Main
                 }
                 //-----------------------------------------------------------------------
             }
+
+            DateTime T02 = DateTime.Now;
+           
+            this.TotalMutationTime_Separatly = ProjectTools.GetTimeDif(T01, T02);
+            this.AvrageMutationTime_Separatly = this.AvrageMutationTime_Separatly / Mutat_iterator_Compilation;
             // }
         }
 
@@ -368,7 +390,7 @@ namespace MMIOC.Main
 
         private void helper02(List<string> statmentList, int index, string newline)
         {
-            
+            DateTime T01 = DateTime.Now;
             List<string> newStatmensCode = new List<string>(statmentList);
             newStatmensCode[index] = newline;
             string newCode = "";
@@ -400,6 +422,8 @@ namespace MMIOC.Main
             }
             //Writing to file --------------------------------------------------------------------------
             Mutat_iterator_Compilation++;
+            DateTime T02 = DateTime.Now;
+            this.AvrageMutationTime_Separatly += ProjectTools.GetTimeDif(T01, T02);
         }
 
         #endregion
@@ -408,8 +432,19 @@ namespace MMIOC.Main
     }
 
 
+    public static class ProjectTools
+    {
+        public static double GetTimeDif(DateTime t01, DateTime t02)
+        {
+            double diff = t02.Subtract(t01).TotalMilliseconds;
+            return diff;
+        }
+    }
+
     public static class ExtendedString
     {
+
+
         public static string GetStringBetween(this string token, string first, string second)
         {
             if (!token.Contains(first)) return "";
