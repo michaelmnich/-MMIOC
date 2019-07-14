@@ -1,16 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MMIOC.Main;
 
+
 /// <summary>
 ///  MMIOC - Is prototype of platform that, implements manny mutants in one compilation 
 /// </summary>
 namespace MMIOC
 {
+   
+    
+
     class Program
     {
         static void Main(string[] args)
@@ -25,10 +30,17 @@ namespace MMIOC
 
 
 
+            string sourceFileName = "sample02.cpp";
+            string ExecFileName = "sample02";
+
+
+
             Console.WriteLine("========================================================= ");
             Console.WriteLine("Many mutants in one compilation v. 0.1 Alpha");
             Console.WriteLine("=========================================================");
             Console.WriteLine("© Michał Mnich 2019. ");
+            Console.WriteLine("");
+            Console.WriteLine("Sorce File: "+ sourceFileName);
             Console.WriteLine("");
 
 
@@ -42,34 +54,40 @@ namespace MMIOC
                 if (comand == "cls")
                 {
                     Console.Clear();
+                    Console.WriteLine("========================================================= ");
+                    Console.WriteLine("Many mutants in one compilation v. 0.1 Alpha");
+                    Console.WriteLine("=========================================================");
+                    Console.WriteLine("© Michał Mnich 2019. ");
+                    Console.WriteLine("");
+
                 }
                 else if (comand == "mut -a")
                 {
-                    mutator.LoadCodeFromFile(path, "sample01.cpp");
+                    mutator.LoadCodeFromFile(path, sourceFileName);
                     mutator.GenerateMutants();
                 }
                 else if (comand == "mut -s")
                 {
 
-                    mutator.LoadCodeFromFile(path, "sample01.cpp");
+                    mutator.LoadCodeFromFile(path, sourceFileName);
                     mutator.GenerateMutants_perCompilation();
                 }
                 else if (comand == "run -a") //agregate comp run
                 {
                     
-                    codeExecutor.Run_AgregateMuttaion(dirs.ManyMutantsInOne_Dir, mutator.MutantIterator);
+                    codeExecutor.Run_AgregateMuttaion(dirs.ManyMutantsInOne_Dir, mutator.MutantIterator, ExecFileName + ".exe");
                 }
                 else if (comand == "run -s") //single comp per mut run
                 {
-                    codeExecutor.Run_SingleMutation(dirs.OneMutantsInOne_SingleComp_Dir);
+                    codeExecutor.Run_SingleMutation(dirs.OneMutantsInOne_SingleComp_Dir, ExecFileName + ".exe");
                 }
                 else if (comand == "comp -a") //agregate comp run
                 {
-                    codeExecutor.Compile_AgregateMuttaion(dirs.ManyMutantsInOne_Dir);
+                    codeExecutor.Compile_AgregateMuttaion(dirs.ManyMutantsInOne_Dir, sourceFileName, ExecFileName);
                 }
                 else if (comand == "comp -s") //single comp per mut run
                 {
-                    codeExecutor.Compile_SingleMutation(dirs.OneMutantsInOne_SingleComp_Dir);
+                    codeExecutor.Compile_SingleMutation(dirs.OneMutantsInOne_SingleComp_Dir, sourceFileName, ExecFileName);
                 }
                 else if (comand == "stat") //single comp per mut run
                 {
@@ -90,6 +108,12 @@ namespace MMIOC
                     Console.WriteLine("AGR-MUT : Avrage run time Agreagated: " + codeExecutor.AvrageRunTime_Agregate + " <--");
                     Console.WriteLine("NAGR-MUT: Total run time Not Agreagated: " + codeExecutor.TotalRunTime_Separatly);
                     Console.WriteLine("AGR-MUT : Total run time Agreagated: " + codeExecutor.TotalRunTime_Agregate + " <--");
+
+                    Console.WriteLine("INFO ---------------------------------------------------------------------------------");
+                    Console.WriteLine("Number of all Mutants: " + mutator.AllAvilableMutants);
+                    Console.WriteLine("Number of Places where code can be mutated: " + mutator.AllAvilableMutationPionts);
+
+
                 }
                 Console.WriteLine("enter comand.. ");
             }

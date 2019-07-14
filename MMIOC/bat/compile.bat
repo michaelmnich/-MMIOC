@@ -1,1 +1,1 @@
-g++ -o %1sample01 %1sample01.cpp
+g++ -o %1%2 %1%3

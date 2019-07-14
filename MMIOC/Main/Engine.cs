@@ -17,6 +17,10 @@ namespace MMIOC.Main
         public double TotalMutationTime_Agregate = 0;
         public double TotalMutationTime_Separatly = 0;
 
+        public uint AllAvilableMutants = 0;
+        public uint AllAvilableMutationPionts = 0;
+
+
         private string _code;
         private string _path;
         private string _file;
@@ -90,7 +94,7 @@ namespace MMIOC.Main
             DateTime T01 = DateTime.Now;
             _mutant_block = "" + Environment.NewLine + Environment.NewLine+"//MUTANTS BLOCK OF CODE ====================================" + Environment.NewLine; //Beginig coment for mutants block of code
             _mutant_block_predef = "" + Environment.NewLine;
-            _code = _code.StripComments(); //removing coments
+            _code = _code.FormatCode(); //removing coments
 
             Regex regex_argV = new Regex(@"argv\s*\[");
             _code = regex_argV.Replace(_code, "argv[1+"); //repleace argv[something] to argv[1+something]
@@ -172,6 +176,7 @@ namespace MMIOC.Main
 
                     string toMutate = _tempIf[0];
                     _tempIf[0] = "if(f" + F_iterator + "(atoi (argv[1])" + paramsToPassed.Item1 + " ))"; //Generaring new mutated if.
+                    AllAvilableMutationPionts++;
                     string newline ="";                 
                     foreach (string s in _tempIf)
                     {
@@ -228,6 +233,7 @@ namespace MMIOC.Main
                     mutant_function = mutant_function_header + mutant_function_body + mutant_function_Footer;
                     _mutant_block += mutant_function;
                     _mutant_block_predef += mutant_function_header_predef + ";" + Environment.NewLine;
+                    AllAvilableMutants = (uint)Mutat_iterator;
                 }
 
             }
@@ -315,7 +321,7 @@ namespace MMIOC.Main
             DateTime T01 = DateTime.Now;
             _dirs.OneMutantsInOne_SingleComp_Dir.Clear(); //clering dir list
             Mutat_iterator_Compilation = 0;
-            string code = _code.StripComments(); //removing coments
+            string code = _code.FormatCode(); //removing coments
 
 
             //if extracting ------------------------------
@@ -471,10 +477,13 @@ namespace MMIOC.Main
         }
 
 
-        public static string StripComments(this string code)
+        public static string FormatCode(this string code)
         {
             var re = @"(@(?:""[^""]*"")+|""(?:[^""\n\\]+|\\.)*""|'(?:[^'\n\\]+|\\.)*')|//.*|/\*(?s:.*?)\*/";
-            return Regex.Replace(code, re, "$1");
+            string s = Regex.Replace(code, re, "$1");
+
+            var re2 = @"if\s*[(]";
+            return Regex.Replace(s, re2, "if(");
         }
 
 

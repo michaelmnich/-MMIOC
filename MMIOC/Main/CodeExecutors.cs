@@ -24,23 +24,23 @@ namespace MMIOC.Main
         public double TotalRunTime_Agregate = 0;
         public double TotalRunTime_Separatly = 0;
 
-        public void Compile_AgregateMuttaion(string dir)
+        public void Compile_AgregateMuttaion(string dir , string sourcefile, string execfile)
         {
             DateTime T01 = DateTime.Now;
-            this.ExecuteCommand("compile.bat "+dir);
+            this.ExecuteCommand("compile.bat "+dir + " " + execfile + " " +  sourcefile);
             DateTime T02 = DateTime.Now;
 
             this.AvrageCompilationTime_Agregate = ProjectTools.GetTimeDif(T01, T02);
             this.TotalCompilationTime_Agregate = ProjectTools.GetTimeDif(T01, T02);
         }
 
-        public void Compile_SingleMutation(List<string> dirs)
+        public void Compile_SingleMutation(List<string> dirs, string sourcefile, string execfile)
         {
             int iter = 0;
             DateTime T01 = DateTime.Now;
             foreach (string d in dirs)
             {
-                this.ExecuteCommand("compile.bat " + d);
+                this.ExecuteCommand("compile.bat " + d + " " + execfile + " " + sourcefile);
                 iter ++;
             }
             DateTime T02 = DateTime.Now;
@@ -50,14 +50,14 @@ namespace MMIOC.Main
         }
 
 
-        public void Run_AgregateMuttaion(string dir, int mutantNumber)
+        public void Run_AgregateMuttaion(string dir, int mutantNumber, string execName)
         {
             int iter = 0;
             DateTime T01 = DateTime.Now;
             for (int i=0; i<mutantNumber; i++)
             {
                 Console.WriteLine("Mutation with paramether: " + i + " -----------------------");
-                this.ExecuteCommand("run.bat " + dir + " " + i);
+                this.ExecuteCommand("run.bat " + dir + " " + i + " " + execName);
                 Console.WriteLine("----------------------------------------------------------------------");
                 Console.WriteLine(" ");
                 Console.WriteLine(" ");
@@ -68,7 +68,7 @@ namespace MMIOC.Main
             this.TotalRunTime_Agregate = ProjectTools.GetTimeDif(T01, T02);
         }
 
-        public void Run_SingleMutation(List<string> dirs)
+        public void Run_SingleMutation(List<string> dirs, string execName)
         {
             int iter = 0;
             DateTime T01 = DateTime.Now;
@@ -76,7 +76,7 @@ namespace MMIOC.Main
             foreach (string d in dirs)
             {
                 Console.WriteLine("Mutation: " + dirs + " -----------------------");
-                this.ExecuteCommand("run.bat " + d);
+                this.ExecuteCommand("run.bat " + d +" "+ execName);
                 Console.WriteLine("----------------------------------------------------------------------");
                 Console.WriteLine(" ");
                 Console.WriteLine(" ");
