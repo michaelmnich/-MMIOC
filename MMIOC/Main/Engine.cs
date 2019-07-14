@@ -47,6 +47,7 @@ namespace MMIOC.Main
            
             _path = path;
             _file = file;
+            F_iterator = 0;
             string pp = Path.Combine(_path, _file);
             if (File.Exists(pp))
             { 
