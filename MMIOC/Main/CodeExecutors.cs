@@ -76,7 +76,7 @@ namespace MMIOC.Main
             foreach (string d in dirs)
             {
                 Console.WriteLine("Mutation: " + dirs + " -----------------------");
-                this.ExecuteCommand("run.bat " + d +" "+ execName);
+                this.ExecuteCommand("run.bat " + d +" 0 "+ execName);
                 Console.WriteLine("----------------------------------------------------------------------");
                 Console.WriteLine(" ");
                 Console.WriteLine(" ");

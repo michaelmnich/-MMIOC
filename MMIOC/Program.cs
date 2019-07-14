@@ -36,7 +36,7 @@ namespace MMIOC
 
 
             Console.WriteLine("========================================================= ");
-            Console.WriteLine("Many mutants in one compilation v. 0.1 Alpha");
+            Console.WriteLine("Many mutants in one compilation v. 0.2 Alpha");
             Console.WriteLine("=========================================================");
             Console.WriteLine("© Michał Mnich 2019. ");
             Console.WriteLine("");
@@ -55,7 +55,7 @@ namespace MMIOC
                 {
                     Console.Clear();
                     Console.WriteLine("========================================================= ");
-                    Console.WriteLine("Many mutants in one compilation v. 0.1 Alpha");
+                    Console.WriteLine("Many mutants in one compilation v. 0.2 Alpha");
                     Console.WriteLine("=========================================================");
                     Console.WriteLine("© Michał Mnich 2019. ");
                     Console.WriteLine("");

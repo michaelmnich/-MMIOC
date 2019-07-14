@@ -116,7 +116,11 @@ namespace MMIOC.Main
                 Regex regex = new Regex(@"int\s*main[(]\s*\w*\s*\n*\t*\w*\[*\]*\s*\,*\s*\w*\x2A*\s*\w*\[*\s*\w*\+*\]*[)]\s*\n*\t*\w*\n*\t*\s*[{]");
                 string newMain = regex.Replace(_code, Environment.NewLine + _mutant_block_predef + Environment.NewLine + "" +
                                                       " char **argv;" + Environment.NewLine + Environment.NewLine +
+                                                      "string g_argv;" + Environment.NewLine + Environment.NewLine +
+
+                                                    
                                                       "int main(int argc, char* argv[]){" + Environment.NewLine +
+                                                      "g_argv = argv[1]; //For Mutation" + Environment.NewLine +
                                                       "   ");
 
                 _code = newMain;
@@ -175,7 +179,7 @@ namespace MMIOC.Main
                     _tempIf = ifStatmentWithCodeBehinde.SplitAndKeep("{").ToList();
 
                     string toMutate = _tempIf[0];
-                    _tempIf[0] = "if(f" + F_iterator + "(atoi (argv[1])" + paramsToPassed.Item1 + " ))"; //Generaring new mutated if.
+                    _tempIf[0] = "if(f" + F_iterator + "(atoi (g_argv.c_str())" + paramsToPassed.Item1 + " ))"; //Generaring new mutated if.
                     AllAvilableMutationPionts++;
                     string newline ="";                 
                     foreach (string s in _tempIf)
