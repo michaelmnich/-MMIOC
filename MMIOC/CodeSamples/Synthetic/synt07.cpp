@@ -53,10 +53,6 @@ void ffff(){
 	 if(b!=21)
 	 {
 		 cout << "IF b!=21"; //test comment 
-		if(bb)
-		{
-			 cout << "IF bb bool"; //test comment 
-		}
 	 }
 
 }

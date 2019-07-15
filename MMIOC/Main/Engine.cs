@@ -312,9 +312,9 @@ namespace MMIOC.Main
 
         private string coditionalOperatorDetector(string statment)
         {
-            if (statment.Contains("<")) { return "<"; }
+            if (statment.Contains("<")&& !statment.Contains("<=")) { return "<"; }
             if (statment.Contains("<=")) { return "<="; }
-            if (statment.Contains(">")) { return ">"; }
+            if (statment.Contains(">") && !statment.Contains(">=")) { return ">"; }
             if (statment.Contains(">=")) { return ">="; }
             if (statment.Contains("==")) { return "=="; }
             if (statment.Contains("!=")) { return "!="; }
