@@ -27,7 +27,7 @@ namespace MMIOC
 
 
             string path = Path.Combine(Environment.CurrentDirectory, dirs.Code_Dir);
-            string ExecFileName = "synt03";
+            string ExecFileName = "test";
             string sourceFileName = ExecFileName + ".cpp";
             if (!(args == null || args.Length == 0))
             {

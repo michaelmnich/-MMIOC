@@ -1,8 +1,7 @@
 {
   "profiles": {
     "MMIOC": {
-      "commandName": "Project",
-      "commandLineArgs": "synt01"
+      "commandName": "Project"
     }
   }
 }
