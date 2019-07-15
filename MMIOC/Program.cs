@@ -95,27 +95,29 @@ namespace MMIOC
                 }
                 else if (comand == "stat") //single comp per mut run
                 {
-                    Console.WriteLine("MUTATION ----------------------------------------------------------------------------");
-                    Console.WriteLine("NAGR-MUT: Avrage mutation time Not Agreagated: "+mutator.AvrageMutationTime_Separatly );
-                    Console.WriteLine("AGR-MUT : Avrage mutation time Agreagated: " + mutator.AvrageMutationTime_Agregate + " <--");
-                    Console.WriteLine("NAGR-MUT: Total mutation time Not Agreagated: " + mutator.TotalMutationTime_Separatly);
-                    Console.WriteLine("AGR-MUT : Total mutation time Agreagated: " + mutator.TotalMutationTime_Agregate + " <--");
+                    string log = sourceFileName+ "**************************************************************************" + Environment.NewLine;
+                    log += "MUTATION ----------------------------------------------------------------------------" + Environment.NewLine;
+                    log += "NAGR-MUT: Avrage mutation time Not Agreagated: " + mutator.AvrageMutationTime_Separatly + Environment.NewLine;
+                    log += "AGR-MUT : Avrage mutation time Agreagated: " + mutator.AvrageMutationTime_Agregate + " <--" + Environment.NewLine;
+                    log += "NAGR-MUT: Total mutation time Not Agreagated: " + mutator.TotalMutationTime_Separatly + Environment.NewLine;
+                    log += "AGR-MUT : Total mutation time Agreagated: " + mutator.TotalMutationTime_Agregate + " <--" + Environment.NewLine;
 
-                    Console.WriteLine("COMPILATION -------------------------------------------------------------------------");
-                    Console.WriteLine("NAGR-MUT: Avrage compilation time Not Agreagated: " + codeExecutor.AvrageCompilationTime_Separatly);
-                    Console.WriteLine("AGR-MUT : Avrage compilation time Agreagated: " + codeExecutor.AvrageCompilationTime_Agregate + " <--");
-                    Console.WriteLine("NAGR-MUT: Total compilation time Not Agreagated: " + codeExecutor.TotalCompilationTime_Separatly);
-                    Console.WriteLine("AGR-MUT : Total compilation time Agreagated: " + codeExecutor.TotalCompilationTime_Agregate + " <--");
+                    log += "COMPILATION -------------------------------------------------------------------------" + Environment.NewLine;
+                    log += "NAGR-MUT: Avrage compilation time Not Agreagated: " + codeExecutor.AvrageCompilationTime_Separatly + Environment.NewLine;
+                    log += "AGR-MUT : Avrage compilation time Agreagated: " + codeExecutor.AvrageCompilationTime_Agregate + " <--" + Environment.NewLine;
+                    log += "NAGR-MUT: Total compilation time Not Agreagated: " + codeExecutor.TotalCompilationTime_Separatly + Environment.NewLine;
+                    log += "AGR-MUT : Total compilation time Agreagated: " + codeExecutor.TotalCompilationTime_Agregate + " <--" + Environment.NewLine;
 
-                    Console.WriteLine("RUN ---------------------------------------------------------------------------------");
-                    Console.WriteLine("NAGR-MUT: Avrage run time Not Agreagated: " + codeExecutor.AvrageRunTime_Separatly);
-                    Console.WriteLine("AGR-MUT : Avrage run time Agreagated: " + codeExecutor.AvrageRunTime_Agregate + " <--");
-                    Console.WriteLine("NAGR-MUT: Total run time Not Agreagated: " + codeExecutor.TotalRunTime_Separatly);
-                    Console.WriteLine("AGR-MUT : Total run time Agreagated: " + codeExecutor.TotalRunTime_Agregate + " <--");
+                    log += "RUN ---------------------------------------------------------------------------------" + Environment.NewLine;
+                    log += "NAGR-MUT: Avrage run time Not Agreagated: " + codeExecutor.AvrageRunTime_Separatly + Environment.NewLine;
+                    log += "AGR-MUT : Avrage run time Agreagated: " + codeExecutor.AvrageRunTime_Agregate + " <--" + Environment.NewLine;
+                    log += "NAGR-MUT: Total run time Not Agreagated: " + codeExecutor.TotalRunTime_Separatly + Environment.NewLine;
+                    log += "AGR-MUT : Total run time Agreagated: " + codeExecutor.TotalRunTime_Agregate + " <--" + Environment.NewLine;
 
-                    Console.WriteLine("INFO ---------------------------------------------------------------------------------");
-                    Console.WriteLine("Number of all Mutants: " + mutator.AllAvilableMutants);
-                    Console.WriteLine("Number of Places where code can be mutated: " + mutator.AllAvilableMutationPionts);
+                    log += "INFO ---------------------------------------------------------------------------------" + Environment.NewLine;
+                    log += "Number of all Mutants: " + mutator.AllAvilableMutants + Environment.NewLine;
+                    log += "Number of Places where code can be mutated: " + mutator.AllAvilableMutationPionts + Environment.NewLine;
+
 
 
                 }
