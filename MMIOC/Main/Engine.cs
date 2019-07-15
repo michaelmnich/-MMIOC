@@ -38,9 +38,25 @@ namespace MMIOC.Main
 
         public Engine(Directories dirs)
         {
-            _dirs = dirs; 
-        }
+            _dirs = dirs;
 
+        
+    }
+
+
+        public void ClearState()
+        {
+            F_iterator = 0;
+            Mutat_iterator = 0;
+            _code = "";
+            _path = "";
+            _file = "";
+            _None = "NONE";
+            _param = "param"; //paramether that controlls wich mutation should be run.
+            _mutant_block = ""; //This strinn is appended each time some new mutant place is detected and mutants blok is created
+            _mutant_block_predef = "";// -||-
+            _dirs.Clear();
+        }
 
         public void LoadCodeFromFile(string path, string file)
         {

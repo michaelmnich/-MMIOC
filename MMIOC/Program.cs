@@ -95,35 +95,75 @@ namespace MMIOC
                 }
                 else if (comand == "stat") //single comp per mut run
                 {
-                    string log = sourceFileName+ "**************************************************************************" + Environment.NewLine;
-                    log += "MUTATION ----------------------------------------------------------------------------" + Environment.NewLine;
-                    log += "NAGR-MUT: Avrage mutation time Not Agreagated: " + mutator.AvrageMutationTime_Separatly + Environment.NewLine;
-                    log += "AGR-MUT : Avrage mutation time Agreagated: " + mutator.AvrageMutationTime_Agregate + " <--" + Environment.NewLine;
-                    log += "NAGR-MUT: Total mutation time Not Agreagated: " + mutator.TotalMutationTime_Separatly + Environment.NewLine;
-                    log += "AGR-MUT : Total mutation time Agreagated: " + mutator.TotalMutationTime_Agregate + " <--" + Environment.NewLine;
+                    Stats(mutator, codeExecutor, sourceFileName);
 
-                    log += "COMPILATION -------------------------------------------------------------------------" + Environment.NewLine;
-                    log += "NAGR-MUT: Avrage compilation time Not Agreagated: " + codeExecutor.AvrageCompilationTime_Separatly + Environment.NewLine;
-                    log += "AGR-MUT : Avrage compilation time Agreagated: " + codeExecutor.AvrageCompilationTime_Agregate + " <--" + Environment.NewLine;
-                    log += "NAGR-MUT: Total compilation time Not Agreagated: " + codeExecutor.TotalCompilationTime_Separatly + Environment.NewLine;
-                    log += "AGR-MUT : Total compilation time Agreagated: " + codeExecutor.TotalCompilationTime_Agregate + " <--" + Environment.NewLine;
+                }
+                else if (comand == "exp01") //single comp per mut run
+                {
+                    for(int i=1; i<=8; i++)
+                    {
+                        mutator.ClearState();
+                        string sourceFileName_exp = "synt0" + i + ".cpp";
+                        string ExecFileName_exp = "synt0" + i;
+                        mutator.LoadCodeFromFile(path, sourceFileName_exp);
+                        mutator.GenerateMutants();
 
-                    log += "RUN ---------------------------------------------------------------------------------" + Environment.NewLine;
-                    log += "NAGR-MUT: Avrage run time Not Agreagated: " + codeExecutor.AvrageRunTime_Separatly + Environment.NewLine;
-                    log += "AGR-MUT : Avrage run time Agreagated: " + codeExecutor.AvrageRunTime_Agregate + " <--" + Environment.NewLine;
-                    log += "NAGR-MUT: Total run time Not Agreagated: " + codeExecutor.TotalRunTime_Separatly + Environment.NewLine;
-                    log += "AGR-MUT : Total run time Agreagated: " + codeExecutor.TotalRunTime_Agregate + " <--" + Environment.NewLine;
+                        mutator.LoadCodeFromFile(path, sourceFileName_exp);
+                        mutator.GenerateMutants_perCompilation();
 
-                    log += "INFO ---------------------------------------------------------------------------------" + Environment.NewLine;
-                    log += "Number of all Mutants: " + mutator.AllAvilableMutants + Environment.NewLine;
-                    log += "Number of Places where code can be mutated: " + mutator.AllAvilableMutationPionts + Environment.NewLine;
+                        codeExecutor.Compile_AgregateMuttaion(dirs.ManyMutantsInOne_Dir, sourceFileName_exp, ExecFileName_exp);
+                        codeExecutor.Compile_SingleMutation(dirs.OneMutantsInOne_SingleComp_Dir, sourceFileName_exp, ExecFileName_exp);
 
+                        codeExecutor.Run_AgregateMuttaion(dirs.ManyMutantsInOne_Dir, mutator.MutantIterator, ExecFileName_exp + ".exe");
+                        codeExecutor.Run_SingleMutation(dirs.OneMutantsInOne_SingleComp_Dir, ExecFileName_exp + ".exe");
 
+                        Stats(mutator, codeExecutor, sourceFileName_exp);
+                    }
+                   
 
                 }
                 Console.WriteLine("enter comand.. ");
             }
           
+        }
+
+        public static void Stats(Engine mutator, CodeExecutors codeExecutor, string sourceFileName)
+        {
+            string log = sourceFileName + "**************************************************************************" + Environment.NewLine;
+            log += "MUTATION ----------------------------------------------------------------------------" + Environment.NewLine;
+            log += "NAGR-MUT: Avrage mutation time Not Agreagated: " + mutator.AvrageMutationTime_Separatly + Environment.NewLine;
+            log += "AGR-MUT : Avrage mutation time Agreagated: " + mutator.AvrageMutationTime_Agregate + " <--" + Environment.NewLine;
+            log += "NAGR-MUT: Total mutation time Not Agreagated: " + mutator.TotalMutationTime_Separatly + Environment.NewLine;
+            log += "AGR-MUT : Total mutation time Agreagated: " + mutator.TotalMutationTime_Agregate + " <--" + Environment.NewLine;
+
+            log += "COMPILATION -------------------------------------------------------------------------" + Environment.NewLine;
+            log += "NAGR-MUT: Avrage compilation time Not Agreagated: " + codeExecutor.AvrageCompilationTime_Separatly + Environment.NewLine;
+            log += "AGR-MUT : Avrage compilation time Agreagated: " + codeExecutor.AvrageCompilationTime_Agregate + " <--" + Environment.NewLine;
+            log += "NAGR-MUT: Total compilation time Not Agreagated: " + codeExecutor.TotalCompilationTime_Separatly + Environment.NewLine;
+            log += "AGR-MUT : Total compilation time Agreagated: " + codeExecutor.TotalCompilationTime_Agregate + " <--" + Environment.NewLine;
+
+            log += "RUN ---------------------------------------------------------------------------------" + Environment.NewLine;
+            log += "NAGR-MUT: Avrage run time Not Agreagated: " + codeExecutor.AvrageRunTime_Separatly + Environment.NewLine;
+            log += "AGR-MUT : Avrage run time Agreagated: " + codeExecutor.AvrageRunTime_Agregate + " <--" + Environment.NewLine;
+            log += "NAGR-MUT: Total run time Not Agreagated: " + codeExecutor.TotalRunTime_Separatly + Environment.NewLine;
+            log += "AGR-MUT : Total run time Agreagated: " + codeExecutor.TotalRunTime_Agregate + " <--" + Environment.NewLine;
+
+            log += "INFO ---------------------------------------------------------------------------------" + Environment.NewLine;
+            log += "Number of all Mutants: " + mutator.AllAvilableMutants + Environment.NewLine;
+            log += "Number of Places where code can be mutated: " + mutator.AllAvilableMutationPionts + Environment.NewLine;
+
+            Console.WriteLine(log);
+            string outputFile = Path.Combine(Environment.CurrentDirectory, "statistics.out");
+            if (!File.Exists(outputFile))
+            {
+                // Create a file to write to.
+                File.WriteAllText(outputFile, log, Encoding.UTF8);
+            }
+            else
+            {
+                File.AppendAllText(outputFile, log, Encoding.UTF8);
+            }
+
         }
 
 

@@ -19,5 +19,10 @@ namespace MMIOC.Main
         {
             OneMutantsInOne_SingleComp_Dir  = new List<string>();
         }
+
+        public void Clear()
+        {
+            OneMutantsInOne_SingleComp_Dir.Clear();
+        }
     }
 }

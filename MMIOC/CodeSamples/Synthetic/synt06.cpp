@@ -8,7 +8,8 @@ int main(int argc, char* argv[])
 {
    // cout << "Hello, World!";
     char* cc = argv[1];
-	int a=1;
+	int a = 1;
+	int b=1;
 	
 	
 	if(a<0) //some test
